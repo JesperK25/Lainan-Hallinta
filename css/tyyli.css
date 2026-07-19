@@ -1,0 +1,377 @@
+/* tyyli.css — Lainanhallinnan ulkoasu */
+
+:root {
+  --tausta: #0f172a;
+  --tausta-2: #1e293b;
+  --kortti: #1e293b;
+  --kortti-reuna: #334155;
+  --teksti: #e2e8f0;
+  --teksti-himmea: #94a3b8;
+  --korostus: #38bdf8;
+  --korostus-tumma: #0ea5e9;
+  --vihrea: #34d399;
+  --keltainen: #fbbf24;
+  --punainen: #f87171;
+  --varjo: 0 4px 20px rgba(0, 0, 0, 0.25);
+  --pyoristys: 14px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+  background: linear-gradient(160deg, var(--tausta), #0b1120);
+  color: var(--teksti);
+  line-height: 1.55;
+  min-height: 100vh;
+}
+
+.ylapalkki {
+  padding: 2.5rem 1.5rem 1.5rem;
+  text-align: center;
+}
+
+.ylapalkki-sisalto h1 {
+  font-size: 2rem;
+  letter-spacing: -0.02em;
+}
+
+.alaotsikko {
+  color: var(--teksti-himmea);
+  margin-top: 0.4rem;
+  font-size: 1rem;
+}
+
+.sisalto {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 1.5rem 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.kortti {
+  background: var(--kortti);
+  border: 1px solid var(--kortti-reuna);
+  border-radius: var(--pyoristys);
+  padding: 1.5rem;
+  box-shadow: var(--varjo);
+}
+
+.kortti h2 {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  letter-spacing: -0.01em;
+}
+
+/* Lomake */
+.laina-lomake {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.kentta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.kentta label {
+  font-size: 0.85rem;
+  color: var(--teksti-himmea);
+  font-weight: 500;
+}
+
+.kentta input {
+  background: var(--tausta);
+  border: 1px solid var(--kortti-reuna);
+  border-radius: 9px;
+  padding: 0.65rem 0.8rem;
+  color: var(--teksti);
+  font-size: 1rem;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.kentta input:focus {
+  outline: none;
+  border-color: var(--korostus);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+}
+
+.lomake-napit {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 0.75rem;
+}
+
+.nappi {
+  border: none;
+  border-radius: 9px;
+  padding: 0.7rem 1.3rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.1s, background 0.15s, opacity 0.15s;
+}
+
+.nappi:active {
+  transform: translateY(1px);
+}
+
+.nappi.ensisijainen {
+  background: var(--korostus);
+  color: #082f49;
+}
+
+.nappi.ensisijainen:hover {
+  background: var(--korostus-tumma);
+}
+
+.nappi.toissijainen {
+  background: transparent;
+  border: 1px solid var(--kortti-reuna);
+  color: var(--teksti);
+}
+
+.nappi.toissijainen:hover {
+  background: var(--tausta);
+}
+
+.nappi.pieni {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.85rem;
+}
+
+.nappi.vaara {
+  color: var(--punainen);
+}
+
+.virhe {
+  grid-column: 1 / -1;
+  color: var(--punainen);
+  font-size: 0.9rem;
+}
+
+/* Yhteenvedon mittarit */
+.mittarit {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.mittari {
+  background: var(--tausta);
+  border-radius: 11px;
+  padding: 1rem;
+  text-align: center;
+  border: 1px solid var(--kortti-reuna);
+}
+
+.mittari-arvo {
+  display: block;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--korostus);
+}
+
+.mittari-nimi {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--teksti-himmea);
+  margin-top: 0.25rem;
+}
+
+/* Lainalista */
+.laina-rivi {
+  background: var(--tausta);
+  border: 1px solid var(--kortti-reuna);
+  border-radius: 11px;
+  padding: 1rem 1.2rem;
+  margin-bottom: 0.9rem;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.6rem 1rem;
+  align-items: center;
+}
+
+.laina-rivi:last-child {
+  margin-bottom: 0;
+}
+
+.laina-otsikko {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.laina-tiedot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.2rem;
+  font-size: 0.88rem;
+  color: var(--teksti-himmea);
+  grid-column: 1 / -1;
+}
+
+.laina-tiedot .arvo {
+  color: var(--teksti);
+  font-weight: 600;
+}
+
+.laina-tiedot .kesto {
+  color: var(--vihrea);
+  font-weight: 600;
+}
+
+.laina-napit {
+  display: flex;
+  gap: 0.5rem;
+  justify-self: end;
+}
+
+.laina-varoitus {
+  grid-column: 1 / -1;
+  color: var(--keltainen);
+  font-size: 0.88rem;
+  background: rgba(251, 191, 36, 0.1);
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+}
+
+.tyhja-teksti {
+  color: var(--teksti-himmea);
+  text-align: center;
+  padding: 1rem;
+}
+
+/* Strategiat */
+.ohje {
+  color: var(--teksti-himmea);
+  font-size: 0.92rem;
+  margin-bottom: 1rem;
+}
+
+.lisabudjetti-kentta {
+  max-width: 280px;
+  margin-bottom: 1.5rem;
+}
+
+.strategiat {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.strategia {
+  background: var(--tausta);
+  border: 1px solid var(--kortti-reuna);
+  border-radius: 11px;
+  padding: 1.2rem;
+}
+
+.strategia.paras {
+  border-color: var(--vihrea);
+  box-shadow: 0 0 0 1px var(--vihrea);
+}
+
+.strategia h3 {
+  font-size: 1.05rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.strategia .selite {
+  font-size: 0.82rem;
+  color: var(--teksti-himmea);
+  margin: 0.3rem 0 0.9rem;
+}
+
+.strategia-luku {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.35rem 0;
+  border-bottom: 1px dashed var(--kortti-reuna);
+  font-size: 0.92rem;
+}
+
+.strategia-luku:last-of-type {
+  border-bottom: none;
+}
+
+.strategia-luku .arvo {
+  font-weight: 700;
+}
+
+.jarjestys {
+  margin-top: 0.9rem;
+  font-size: 0.85rem;
+}
+
+.jarjestys ol {
+  margin: 0.4rem 0 0 1.1rem;
+  color: var(--teksti-himmea);
+}
+
+.jarjestys li {
+  margin-bottom: 0.2rem;
+}
+
+.paras-merkki {
+  font-size: 0.72rem;
+  background: var(--vihrea);
+  color: #052e16;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  font-weight: 700;
+  margin-left: auto;
+}
+
+.suositus {
+  margin-top: 1.5rem;
+  background: rgba(52, 211, 153, 0.1);
+  border: 1px solid var(--vihrea);
+  border-radius: 11px;
+  padding: 1.1rem 1.3rem;
+  font-size: 0.95rem;
+}
+
+.suositus strong {
+  color: var(--vihrea);
+}
+
+/* Alapalkki */
+.alapalkki {
+  text-align: center;
+  color: var(--teksti-himmea);
+  font-size: 0.82rem;
+  padding: 1.5rem;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.piilossa {
+  display: none !important;
+}
+
+/* Responsiivisuus */
+@media (max-width: 620px) {
+  .laina-lomake {
+    grid-template-columns: 1fr;
+  }
+  .strategiat {
+    grid-template-columns: 1fr;
+  }
+  .laina-rivi {
+    grid-template-columns: 1fr;
+  }
+  .laina-napit {
+    justify-self: start;
+  }
+}

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="fi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lainanhallinta</title>
+    <link rel="stylesheet" href="css/tyyli.css" />
+  </head>
+  <body>
+    <header class="ylapalkki">
+      <div class="ylapalkki-sisalto">
+        <h1>💶 Lainanhallinta</h1>
+        <p class="alaotsikko">
+          Lisää lainasi ja katso, milloin olet velaton — ja miten pääset sinne
+          nopeimmin.
+        </p>
+      </div>
+    </header>
+
+    <main class="sisalto">
+      <!-- Lainan lisäys / muokkaus -->
+      <section class="kortti">
+        <h2 id="lomake-otsikko">Lisää laina</h2>
+        <form id="laina-lomake" class="laina-lomake" novalidate>
+          <input type="hidden" id="muokkaus-id" value="" />
+          <div class="kentta">
+            <label for="nimi">Lainan nimi</label>
+            <input
+              type="text"
+              id="nimi"
+              placeholder="esim. Asuntolaina"
+              required
+            />
+          </div>
+          <div class="kentta">
+            <label for="saldo">Jäljellä oleva summa (€)</label>
+            <input
+              type="number"
+              id="saldo"
+              min="0"
+              step="0.01"
+              placeholder="esim. 15000"
+              required
+            />
+          </div>
+          <div class="kentta">
+            <label for="korko">Vuosikorko (%)</label>
+            <input
+              type="number"
+              id="korko"
+              min="0"
+              step="0.01"
+              placeholder="esim. 4.5"
+              required
+            />
+          </div>
+          <div class="kentta">
+            <label for="kkmaksu">Kuukausilyhennys (€)</label>
+            <input
+              type="number"
+              id="kkmaksu"
+              min="0"
+              step="0.01"
+              placeholder="esim. 300"
+              required
+            />
+          </div>
+          <div class="lomake-napit">
+            <button type="submit" class="nappi ensisijainen" id="tallenna-nappi">
+              Lisää laina
+            </button>
+            <button type="button" class="nappi toissijainen piilossa" id="peruuta-nappi">
+              Peruuta
+            </button>
+          </div>
+          <p class="virhe piilossa" id="lomake-virhe"></p>
+        </form>
+      </section>
+
+      <!-- Yhteenveto -->
+      <section class="kortti yhteenveto piilossa" id="yhteenveto-kortti">
+        <h2>Yhteenveto</h2>
+        <div class="mittarit">
+          <div class="mittari">
+            <span class="mittari-arvo" id="yht-velka">–</span>
+            <span class="mittari-nimi">Velkaa yhteensä</span>
+          </div>
+          <div class="mittari">
+            <span class="mittari-arvo" id="yht-kkmaksu">–</span>
+            <span class="mittari-nimi">Kuukausimaksut</span>
+          </div>
+          <div class="mittari">
+            <span class="mittari-arvo" id="yht-kesto">–</span>
+            <span class="mittari-nimi">Velaton (nykytahdilla)</span>
+          </div>
+          <div class="mittari">
+            <span class="mittari-arvo" id="yht-korot">–</span>
+            <span class="mittari-nimi">Korot yhteensä</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Lainalista -->
+      <section class="kortti">
+        <h2>Lainat</h2>
+        <div id="lainalista"></div>
+        <p class="tyhja-teksti" id="tyhja-teksti">
+          Ei vielä lainoja. Lisää ensimmäinen laina yltä.
+        </p>
+      </section>
+
+      <!-- Takaisinmaksusuunnitelma -->
+      <section class="kortti suunnitelma piilossa" id="suunnitelma-kortti">
+        <h2>Takaisinmaksusuunnitelma</h2>
+        <p class="ohje">
+          Paljonko voit laittaa lainojen lyhennykseen kuukaudessa
+          <strong>pakollisten maksujen lisäksi</strong>? Vertaillaan kahta
+          strategiaa.
+        </p>
+        <div class="kentta lisabudjetti-kentta">
+          <label for="lisabudjetti">Ylimääräinen budjetti / kk (€)</label>
+          <input
+            type="number"
+            id="lisabudjetti"
+            min="0"
+            step="10"
+            value="0"
+          />
+        </div>
+
+        <div class="strategiat" id="strategiat"></div>
+
+        <div class="suositus piilossa" id="suositus"></div>
+      </section>
+    </main>
+
+    <footer class="alapalkki">
+      <p>
+        Tiedot tallentuvat vain omaan selaimeesi (localStorage). Laskelmat ovat
+        arvioita — todelliset lyhennykset voivat poiketa pankin ehdoista.
+      </p>
+    </footer>
+
+    <script src="js/laskenta.js"></script>
+    <script src="js/sovellus.js"></script>
+  </body>
+</html>
