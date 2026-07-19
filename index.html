@@ -134,6 +134,53 @@
 
         <div class="suositus piilossa" id="suositus"></div>
       </section>
+
+      <!-- Velan kehitys -kuvaaja -->
+      <section class="kortti piilossa" id="kaavio-kortti">
+        <h2>📉 Velan kehitys</h2>
+        <p class="ohje">
+          Kokonaisvelkasi ajan myötä. Vihreä viiva = nykyisellä ylimääräisellä
+          budjetilla, harmaa katkoviiva = pelkillä minimimaksuilla.
+        </p>
+        <div class="kaavio-kaari">
+          <canvas id="velka-kaavio"></canvas>
+        </div>
+        <div class="kaavio-selite" id="kaavio-selite"></div>
+      </section>
+
+      <!-- Tavoitepäivä-laskuri -->
+      <section class="kortti piilossa" id="tavoite-kortti">
+        <h2>🎯 Milloin haluat olla velaton?</h2>
+        <p class="ohje">
+          Valitse tavoitekuukausi, niin laskemme paljonko sinun pitäisi maksaa
+          kuukaudessa yhteensä päästäksesi siihen (minimit + ylimääräinen).
+        </p>
+        <div class="kentta tyokalu-kentta">
+          <label for="tavoite-kk">Velaton viimeistään</label>
+          <input type="month" id="tavoite-kk" />
+        </div>
+        <div id="tavoite-tulos"></div>
+      </section>
+
+      <!-- Yhdistelylaina-laskuri -->
+      <section class="kortti piilossa" id="yhdistely-kortti">
+        <h2>🔀 Yhdistelylaina — mitä jos?</h2>
+        <p class="ohje">
+          Entä jos yhdistäisit kaikki velat yhdeksi lainaksi? Kokeile eri
+          korkoja ja maksuaikoja ja vertaa nykytilanteeseen.
+        </p>
+        <div class="tyokalu-syotteet">
+          <div class="kentta">
+            <label for="yhd-korko">Uuden lainan korko (%)</label>
+            <input type="number" id="yhd-korko" value="10" step="0.1" min="0" />
+          </div>
+          <div class="kentta">
+            <label for="yhd-vuodet">Maksuaika (vuotta)</label>
+            <input type="number" id="yhd-vuodet" value="7" step="1" min="1" />
+          </div>
+        </div>
+        <div id="yhd-tulos"></div>
+      </section>
     </main>
 
     <footer class="alapalkki">

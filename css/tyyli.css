@@ -441,6 +441,111 @@ body {
   color: var(--vihrea);
 }
 
+/* Työkalut: yhdistely, tavoite, kaavio */
+.tyokalu-syotteet {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.2rem;
+}
+
+.tyokalu-kentta {
+  max-width: 280px;
+  margin-bottom: 1.2rem;
+}
+
+.vertailu-rivi {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.4rem 1rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px dashed var(--kortti-reuna);
+  font-size: 0.95rem;
+}
+
+.vertailu-rivi:last-of-type {
+  border-bottom: none;
+}
+
+.vertailu-rivi .arvo {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.vertailu-rivi.korostettu {
+  background: rgba(52, 211, 153, 0.1);
+  border-radius: 8px;
+  padding: 0.6rem 0.7rem;
+  border-bottom: none;
+}
+
+.vertailu-rivi.korostettu .arvo {
+  color: var(--vihrea);
+  font-size: 1.05rem;
+}
+
+.tulos-otsikko {
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--teksti-himmea);
+  margin: 1.1rem 0 0.5rem;
+}
+
+.tulos-huomio {
+  margin-top: 1rem;
+  font-size: 0.88rem;
+  color: var(--teksti-himmea);
+}
+
+.tulos-huomio.hyva {
+  color: var(--vihrea);
+}
+
+.tulos-huomio.varo {
+  color: var(--keltainen);
+}
+
+/* Kaavio */
+.kaavio-kaari {
+  width: 100%;
+  overflow-x: auto;
+}
+
+#velka-kaavio {
+  display: block;
+  width: 100%;
+}
+
+.kaavio-selite {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.2rem;
+  margin-top: 0.9rem;
+  font-size: 0.85rem;
+  color: var(--teksti-himmea);
+}
+
+.kaavio-selite .merkki {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.kaavio-selite .viiva {
+  width: 22px;
+  height: 3px;
+  border-radius: 2px;
+}
+
+.kaavio-selite .viiva.vihrea {
+  background: var(--vihrea);
+}
+
+.kaavio-selite .viiva.harmaa {
+  background: var(--teksti-himmea);
+}
+
 /* Alapalkki */
 .alapalkki {
   text-align: center;

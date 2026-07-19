@@ -238,6 +238,76 @@ function simuloiStrategia(lainat, lisabudjetti, strategia, maxKuukaudet = 1200) 
   };
 }
 
+/**
+ * Laskee yhdistelylainan (kaikki velat yhtenä annuiteettilainana).
+ *
+ * @param {number} paaoma     Yhdistettävä kokonaisvelka (€)
+ * @param {number} vuosikorko Uuden lainan vuosikorko (%)
+ * @param {number} kuukaudet  Laina-aika kuukausina
+ * @returns {{ era, maksettu, korotYhteensa, kuukaudet }}
+ */
+function yhdistelyLaina(paaoma, vuosikorko, kuukaudet) {
+  const i = kuukausikorko(vuosikorko);
+  let era;
+  if (i === 0) {
+    era = paaoma / kuukaudet;
+  } else {
+    era = (paaoma * i) / (1 - Math.pow(1 + i, -kuukaudet));
+  }
+  const maksettu = era * kuukaudet;
+  return {
+    era,
+    maksettu,
+    korotYhteensa: maksettu - paaoma,
+    kuukaudet,
+  };
+}
+
+/**
+ * Etsii pienimmän ylimääräisen kuukausibudjetin, jolla velat saa maksettua
+ * pois annetussa ajassa (lumivyöry-strategialla). Käyttää puolitushakua.
+ *
+ * @param {Array} lainat            [{ nimi, saldo, korko, kkMaksu }]
+ * @param {number} tavoiteKuukaudet Tavoite: velaton viimeistään näin monessa kk
+ * @returns {{ lisabudjetti, kuukaudet, joEnnen, mahdoton }}
+ */
+function laskeTavoiteBudjetti(lainat, tavoiteKuukaudet, maxKuukaudet = 1200) {
+  const perus = simuloiStrategia(lainat, 0, "lumivyory", maxKuukaudet);
+
+  // Jos jo pelkillä minimeillä ehtii, lisäbudjettia ei tarvita.
+  if (!perus.riittamaton && perus.kuukaudet <= tavoiteKuukaudet) {
+    return {
+      lisabudjetti: 0,
+      kuukaudet: perus.kuukaudet,
+      joEnnen: true,
+      mahdoton: false,
+    };
+  }
+
+  const kokonaisVelka = lainat.reduce((s, l) => s + l.saldo, 0);
+  let lo = 0;
+  let hi = kokonaisVelka; // Tällä velat lähtee käytännössä heti.
+
+  for (let it = 0; it < 48; it++) {
+    const mid = (lo + hi) / 2;
+    const s = simuloiStrategia(lainat, mid, "lumivyory", maxKuukaudet);
+    if (!s.riittamaton && s.kuukaudet <= tavoiteKuukaudet) {
+      hi = mid;
+    } else {
+      lo = mid;
+    }
+  }
+
+  const lisabudjetti = Math.ceil(hi);
+  const lopullinen = simuloiStrategia(lainat, lisabudjetti, "lumivyory", maxKuukaudet);
+  return {
+    lisabudjetti,
+    kuukaudet: lopullinen.kuukaudet,
+    joEnnen: false,
+    mahdoton: lopullinen.riittamaton,
+  };
+}
+
 // Vie funktiot testejä varten (Node) ilman että selain hajoaa.
 if (typeof module !== "undefined" && module.exports) {
   module.exports = {
@@ -247,5 +317,7 @@ if (typeof module !== "undefined" && module.exports) {
     euro,
     maksuValmisPaiva,
     simuloiStrategia,
+    yhdistelyLaina,
+    laskeTavoiteBudjetti,
   };
 }
