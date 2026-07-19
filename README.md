@@ -42,8 +42,13 @@ js/sovellus.js      Käyttöliittymän logiikka + tallennus
 
 ## Laskennasta
 
-- Korko lasketaan kuukausittain vuosikorosta (`vuosikorko / 12`).
-- Kuukausimaksusta vähennetään ensin korko, loput lyhentää pääomaa (annuiteetti).
+- **Koron tyyppi** valitaan yläpalkista:
+  - *Todellinen vuosikorko (TVK)* — efektiivinen korko, kuukausikorko
+    `(1 + korko)^(1/12) − 1`. Sisältää lainan kulut jo, joten erillinen
+    kulukenttä on tässä tilassa pois käytöstä.
+  - *Nimelliskorko* — kuukausikorko `korko / 12`, ja lainakohtaiset
+    kuukausikulut (esim. tilinhoitomaksu) huomioidaan erikseen.
+- Kuukausierästä vähennetään ensin korko ja kulut, loppu lyhentää pääomaa.
 - Strategiasimulaatiossa kaikille lainoille maksetaan aina vähintään oma
   kk-maksu; ylimääräinen budjetti ja pois maksettujen lainojen vapautuvat maksut
   ohjataan strategian mukaan seuraavaan kohdelainaan.

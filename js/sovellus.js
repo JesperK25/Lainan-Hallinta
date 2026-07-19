@@ -64,12 +64,16 @@
     const saldo = parseFloat(document.getElementById("saldo").value);
     const korko = parseFloat(document.getElementById("korko").value);
     const kkMaksu = parseFloat(document.getElementById("kkmaksu").value);
+    const kkKulut = parseFloat(document.getElementById("kkkulut").value) || 0;
 
     if (!nimi) return naytaVirhe("Anna lainalle nimi.");
     if (!(saldo > 0)) return naytaVirhe("Summan pitää olla suurempi kuin 0.");
     if (!(korko >= 0)) return naytaVirhe("Korko ei voi olla negatiivinen.");
     if (!(kkMaksu > 0))
-      return naytaVirhe("Kuukausilyhennyksen pitää olla suurempi kuin 0.");
+      return naytaVirhe("Kuukausierän pitää olla suurempi kuin 0.");
+    if (kkKulut < 0) return naytaVirhe("Kulut eivät voi olla negatiiviset.");
+    if (kkKulut >= kkMaksu)
+      return naytaVirhe("Kuukausikulujen pitää olla pienemmät kuin kuukausierä.");
 
     const id = muokkausId.value;
     if (id) {
@@ -79,6 +83,7 @@
         laina.saldo = saldo;
         laina.korko = korko;
         laina.kkMaksu = kkMaksu;
+        laina.kkKulut = kkKulut;
       }
     } else {
       lainat.push({
@@ -87,6 +92,7 @@
         saldo,
         korko,
         kkMaksu,
+        kkKulut,
       });
     }
 
@@ -114,6 +120,7 @@
     document.getElementById("saldo").value = laina.saldo;
     document.getElementById("korko").value = laina.korko;
     document.getElementById("kkmaksu").value = laina.kkMaksu;
+    document.getElementById("kkkulut").value = laina.kkKulut || "";
     lomakeOtsikko.textContent = "Muokkaa lainaa";
     tallennaNappi.textContent = "Tallenna muutokset";
     peruutaNappi.classList.remove("piilossa");
@@ -139,8 +146,50 @@
     lomakeVirhe.classList.add("piilossa");
   }
 
+  // --- Kulujen tulkinta ---
+  // Todellisessa vuosikorossa (TVK) kulut ovat jo mukana korossa, joten
+  // erillisiä kuluja EI lisätä laskentaan (muuten ne laskettaisiin kahteen
+  // kertaan). Nimelliskorossa kulut otetaan huomioon erikseen.
+  function tehollisetKulut(laina) {
+    if (lataaKorkotyyppi() === "nimellinen") {
+      return laina.kkKulut || 0;
+    }
+    return 0;
+  }
+
+  // Lainat laskentaa varten: kulut nollataan TVK-tilassa.
+  function laskentaLainat() {
+    return lainat.map((l) => ({
+      nimi: l.nimi,
+      saldo: l.saldo,
+      korko: l.korko,
+      kkMaksu: l.kkMaksu,
+      kkKulut: tehollisetKulut(l),
+    }));
+  }
+
+  // Onko yhdelläkään lainalla kuluja, jotka vaikuttavat laskentaan?
+  function onkoKuluja() {
+    return lainat.some((l) => tehollisetKulut(l) > 0);
+  }
+
+  // Kytkee kulut-kentän käyttöön korkotyypin mukaan.
+  function paivitaKuluKentta() {
+    const kentta = document.getElementById("kkkulut");
+    const vihje = document.getElementById("kkkulut-vihje");
+    if (lataaKorkotyyppi() === "nimellinen") {
+      kentta.disabled = false;
+      vihje.textContent = "Osa kuukausierästä, esim. tilinhoitomaksu.";
+    } else {
+      kentta.disabled = true;
+      vihje.textContent =
+        "Todellinen vuosikorko sisältää kulut jo — käytä nimelliskorkoa erotellaksesi ne.";
+    }
+  }
+
   // --- Piirto ---
   function piirraKaikki() {
+    paivitaKuluKentta();
     piirraLainalista();
     piirraYhteenveto();
     piirraSuunnitelma();
@@ -157,9 +206,15 @@
     tyhjaTeksti.classList.add("piilossa");
 
     for (const laina of lainat) {
-      const tulos = laskeLaina(laina.saldo, laina.korko, laina.kkMaksu);
+      const kulut = tehollisetKulut(laina);
+      const tulos = laskeLaina(laina.saldo, laina.korko, laina.kkMaksu, kulut);
       const rivi = document.createElement("div");
       rivi.className = "laina-rivi";
+
+      const kuluHtml =
+        kulut > 0
+          ? `<span>Kulut: <span class="arvo">${euro(kulut)}/kk</span></span>`
+          : "";
 
       let tiedotHtml;
       if (tulos.riittamaton) {
@@ -167,27 +222,36 @@
           <div class="laina-tiedot">
             <span>Saldo: <span class="arvo">${euro(laina.saldo)}</span></span>
             <span>Korko: <span class="arvo">${laina.korko} %</span></span>
-            <span>Lyhennys: <span class="arvo">${euro(laina.kkMaksu)}/kk</span></span>
+            <span>Kuukausierä: <span class="arvo">${euro(laina.kkMaksu)}/kk</span></span>
+            ${kuluHtml}
           </div>
           <div class="laina-varoitus">
-            ⚠️ Kuukausilyhennys ei kata edes korkoa — laina ei lyhene. Nosta lyhennystä.
+            ⚠️ Kuukausierä ei kata korkoa ja kuluja — laina ei lyhene. Nosta erää.
           </div>`;
       } else {
         const pvm = maksuValmisPaiva(tulos.kuukaudet);
         const pvmTeksti = pvm
           ? pvm.toLocaleDateString("fi-FI", { year: "numeric", month: "long" })
           : "";
+        const kulutYhtHtml =
+          kulut > 0
+            ? `<span>Kulut yht: <span class="arvo">${euro(
+                tulos.kulutYhteensa
+              )}</span></span>`
+            : "";
         tiedotHtml = `
           <div class="laina-tiedot">
             <span>Saldo: <span class="arvo">${euro(laina.saldo)}</span></span>
             <span>Korko: <span class="arvo">${laina.korko} %</span></span>
-            <span>Lyhennys: <span class="arvo">${euro(laina.kkMaksu)}/kk</span></span>
+            <span>Kuukausierä: <span class="arvo">${euro(laina.kkMaksu)}/kk</span></span>
+            ${kuluHtml}
             <span>Maksuaika: <span class="kesto">${muotoileKesto(
               tulos.kuukaudet
             )}</span> (${pvmTeksti})</span>
             <span>Korot yht: <span class="arvo">${euro(
               tulos.korotYhteensa
             )}</span></span>
+            ${kulutYhtHtml}
           </div>`;
       }
 
@@ -221,16 +285,16 @@
     const yhtKkMaksu = lainat.reduce((s, l) => s + l.kkMaksu, 0);
 
     let maxKuukaudet = 0;
-    let yhtKorot = 0;
+    let yhtKorotKulut = 0;
     let joku = false;
     for (const l of lainat) {
-      const t = laskeLaina(l.saldo, l.korko, l.kkMaksu);
+      const t = laskeLaina(l.saldo, l.korko, l.kkMaksu, tehollisetKulut(l));
       if (t.riittamaton) {
         maxKuukaudet = Infinity;
         joku = true;
         continue;
       }
-      yhtKorot += t.korotYhteensa;
+      yhtKorotKulut += t.korotYhteensa + t.kulutYhteensa;
       if (t.kuukaudet > maxKuukaudet) maxKuukaudet = t.kuukaudet;
     }
 
@@ -240,7 +304,10 @@
       muotoileKesto(maxKuukaudet);
     document.getElementById("yht-korot").textContent = joku
       ? "–"
-      : euro(yhtKorot);
+      : euro(yhtKorotKulut);
+    document.getElementById("yht-korot-nimi").textContent = onkoKuluja()
+      ? "Korot & kulut yht."
+      : "Korot yhteensä";
   }
 
   function piirraSuunnitelma() {
@@ -257,8 +324,8 @@
 
     const lisabudjetti = Math.max(0, parseFloat(lisabudjettiKentta.value) || 0);
 
-    const lumivyory = simuloiStrategia(lainat, lisabudjetti, "lumivyory");
-    const lumipallo = simuloiStrategia(lainat, lisabudjetti, "lumipallo");
+    const lumivyory = simuloiStrategia(laskentaLainat(), lisabudjetti, "lumivyory");
+    const lumipallo = simuloiStrategia(laskentaLainat(), lisabudjetti, "lumipallo");
 
     strategiatEl.innerHTML = "";
 
@@ -306,7 +373,7 @@
     piirraKaavio(parasStrategia, lisabudjetti);
 
     // Vertailu nykytahtiin (ilman lisäbudjettia, minimimaksut).
-    const nyky = simuloiStrategia(lainat, 0, "lumivyory");
+    const nyky = simuloiStrategia(laskentaLainat(), 0, "lumivyory");
     naytaSuositus(
       suositusEl,
       parasStrategia === "lumivyory" ? lumivyory : lumipallo,
@@ -470,7 +537,7 @@
     const yhd = yhdistelyLaina(velka, korko, kuukaudet);
 
     // Nykytilanne realistisesti: lumivyöry pelkillä minimeillä.
-    const nyky = simuloiStrategia(lainat, 0, "lumivyory");
+    const nyky = simuloiStrategia(laskentaLainat(), 0, "lumivyory");
     const nykyKorot = nyky.riittamaton ? Infinity : nyky.korotYhteensa;
 
     const korkoSaasto = nykyKorot - yhd.korotYhteensa;
@@ -551,7 +618,7 @@
       return;
     }
 
-    const tulos = laskeTavoiteBudjetti(lainat, kuukaudet);
+    const tulos = laskeTavoiteBudjetti(laskentaLainat(), kuukaudet);
     const nykyKkMaksu = lainat.reduce((s, l) => s + l.kkMaksu, 0);
 
     if (tulos.mahdoton) {
@@ -615,8 +682,8 @@
     }
     kortti.classList.remove("piilossa");
 
-    const kanssa = simuloiStrategia(lainat, lisabudjetti, strategia);
-    const minimit = simuloiStrategia(lainat, 0, strategia);
+    const kanssa = simuloiStrategia(laskentaLainat(), lisabudjetti, strategia);
+    const minimit = simuloiStrategia(laskentaLainat(), 0, strategia);
     if (kanssa.riittamaton) {
       kortti.classList.add("piilossa");
       return;

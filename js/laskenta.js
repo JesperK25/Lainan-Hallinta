@@ -36,30 +36,34 @@ function kuukausikorko(vuosikorkoProsentti) {
  *
  * @param {number} saldo         Jäljellä oleva pääoma (€)
  * @param {number} vuosikorko    Vuosikorko (%)
- * @param {number} kkMaksu       Kuukausimaksu (€)
+ * @param {number} kkMaksu       Kuukausierä yhteensä (€) — sisältää koron, kulut ja lyhennyksen
+ * @param {number} kkKulut       Kiinteät kuukausikulut (€), esim. tilinhoitomaksu
  * @param {number} maxKuukaudet  Turvaraja ettei silmukka jää ikuiseksi
  * @returns {{
  *   kuukaudet: number,          Montako kuukautta maksuun menee
  *   korotYhteensa: number,      Maksetut korot yhteensä (€)
- *   maksettuYhteensa: number,   Maksettu yhteensä pääoma + korot (€)
- *   riittamaton: boolean,       Tosi jos maksu ei kata edes korkoa
+ *   kulutYhteensa: number,      Maksetut kulut yhteensä (€)
+ *   maksettuYhteensa: number,   Maksettu yhteensä pääoma + korot + kulut (€)
+ *   riittamaton: boolean,       Tosi jos erä ei kata korkoa + kuluja
  *   aikataulu: Array            Kuukausittainen erittely
  * }}
  */
-function laskeLaina(saldo, vuosikorko, kkMaksu, maxKuukaudet = 1200) {
+function laskeLaina(saldo, vuosikorko, kkMaksu, kkKulut = 0, maxKuukaudet = 1200) {
   const i = kuukausikorko(vuosikorko);
   const aikataulu = [];
   let jaljella = saldo;
   let korotYhteensa = 0;
+  let kulutYhteensa = 0;
   let maksettuYhteensa = 0;
   let kuukaudet = 0;
 
-  // Jos maksu ei kata ensimmäisen kuukauden korkoa, laina ei koskaan pienene.
+  // Jos erä ei kata korkoa + kuluja, laina ei koskaan pienene.
   const ensimmainenKorko = jaljella * i;
-  if (kkMaksu <= ensimmainenKorko && i > 0) {
+  if (kkMaksu <= ensimmainenKorko + kkKulut) {
     return {
       kuukaudet: Infinity,
       korotYhteensa: Infinity,
+      kulutYhteensa: Infinity,
       maksettuYhteensa: Infinity,
       riittamaton: true,
       aikataulu: [],
@@ -68,22 +72,24 @@ function laskeLaina(saldo, vuosikorko, kkMaksu, maxKuukaudet = 1200) {
 
   while (jaljella > 0.005 && kuukaudet < maxKuukaudet) {
     const korko = jaljella * i;
-    let lyhennys = kkMaksu - korko;
+    let lyhennys = kkMaksu - korko - kkKulut;
 
     // Viimeinen erä: älä maksa yli jäljellä olevan pääoman.
     if (lyhennys >= jaljella) {
       lyhennys = jaljella;
     }
 
-    const maksuTallaKuulla = lyhennys + korko;
+    const maksuTallaKuulla = lyhennys + korko + kkKulut;
     jaljella -= lyhennys;
     korotYhteensa += korko;
+    kulutYhteensa += kkKulut;
     maksettuYhteensa += maksuTallaKuulla;
     kuukaudet += 1;
 
     aikataulu.push({
       kuukausi: kuukaudet,
       korko: korko,
+      kulut: kkKulut,
       lyhennys: lyhennys,
       maksu: maksuTallaKuulla,
       jaljella: Math.max(jaljella, 0),
@@ -93,6 +99,7 @@ function laskeLaina(saldo, vuosikorko, kkMaksu, maxKuukaudet = 1200) {
   return {
     kuukaudet,
     korotYhteensa,
+    kulutYhteensa,
     maksettuYhteensa,
     riittamaton: false,
     aikataulu,
@@ -160,27 +167,25 @@ function simuloiStrategia(lainat, lisabudjetti, strategia, maxKuukaudet = 1200) 
     jaljella: l.saldo,
     korko: l.korko,
     kkMaksu: l.kkMaksu,
+    kkKulut: l.kkKulut || 0,
     maksettuKuukausi: null,
   }));
 
   let kuukaudet = 0;
   let korotYhteensa = 0;
+  let kulutYhteensa = 0;
   let maksettuYhteensa = 0;
   const aikataulu = [];
   const jarjestys = [];
 
-  // Perusvaroitus: kattavatko kk-maksut edes korot yhteensä?
-  const kokonaisMaksu =
-    lainat.reduce((s, l) => s + l.kkMaksu, 0) + lisabudjetti;
-
   while (tila.some((l) => l.jaljella > 0.005) && kuukaudet < maxKuukaudet) {
     kuukaudet += 1;
 
-    // 1. Peritään korot ja maksetaan minimit kaikille avoimille lainoille.
-    let kaytettavissa = lisabudjetti; // lisäbudjetti + vapautuneet minimit
+    // 1. Peritään korot ja kulut ja maksetaan minimit avoimille lainoille.
+    let kaytettavissa = lisabudjetti; // lisäbudjetti + vapautuneet erät
     for (const l of tila) {
       if (l.jaljella <= 0.005) {
-        // Jo maksettu — vapautuu minimimaksu kohdennettavaksi.
+        // Jo maksettu — koko erä (myös kulut) vapautuu kohdennettavaksi.
         kaytettavissa += l.kkMaksu;
         continue;
       }
@@ -188,12 +193,18 @@ function simuloiStrategia(lainat, lisabudjetti, strategia, maxKuukaudet = 1200) 
       l.jaljella += korko;
       korotYhteensa += korko;
 
-      const minimi = Math.min(l.kkMaksu, l.jaljella);
+      // Kulut ovat kiinteä kustannus, ei lyhennä pääomaa.
+      kulutYhteensa += l.kkKulut;
+      maksettuYhteensa += l.kkKulut;
+
+      // Erästä kulujen jälkeen jäävä osa lyhentää (sisältää juuri lisätyn koron).
+      const paaomaan = l.kkMaksu - l.kkKulut;
+      const minimi = Math.min(paaomaan, l.jaljella);
       l.jaljella -= minimi;
       maksettuYhteensa += minimi;
 
-      // Jos minimi olisi ollut isompi kuin jäljellä, ylijäävä osa vapautuu.
-      kaytettavissa += l.kkMaksu - minimi;
+      // Jos erä olisi ollut isompi kuin jäljellä, ylijäävä osa vapautuu.
+      kaytettavissa += paaomaan - minimi;
     }
 
     // 2. Valitaan kohdelaina strategian mukaan ja kohdennetaan ylimäärä.
@@ -239,6 +250,7 @@ function simuloiStrategia(lainat, lisabudjetti, strategia, maxKuukaudet = 1200) 
       return {
         kuukaudet: Infinity,
         korotYhteensa: Infinity,
+        kulutYhteensa: Infinity,
         maksettuYhteensa: Infinity,
         riittamaton: true,
         jarjestys: [],
@@ -250,6 +262,7 @@ function simuloiStrategia(lainat, lisabudjetti, strategia, maxKuukaudet = 1200) 
   return {
     kuukaudet,
     korotYhteensa,
+    kulutYhteensa,
     maksettuYhteensa,
     riittamaton: kuukaudet >= maxKuukaudet,
     jarjestys,

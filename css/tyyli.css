@@ -105,6 +105,23 @@ body {
   box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
 }
 
+.kentta input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.kentta-vihje {
+  font-size: 0.78rem;
+  color: var(--teksti-himmea);
+}
+
+.valinnainen {
+  font-size: 0.72rem;
+  color: var(--teksti-himmea);
+  font-weight: 400;
+  text-transform: none;
+}
+
 .lomake-napit {
   grid-column: 1 / -1;
   display: flex;

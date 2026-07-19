@@ -68,7 +68,7 @@
             />
           </div>
           <div class="kentta">
-            <label for="kkmaksu">Kuukausilyhennys (€)</label>
+            <label for="kkmaksu">Kuukausierä (€)</label>
             <input
               type="number"
               id="kkmaksu"
@@ -77,6 +77,21 @@
               placeholder="esim. 300"
               required
             />
+          </div>
+          <div class="kentta">
+            <label for="kkkulut" id="kkkulut-label">
+              Kuukausikulut (€) <span class="valinnainen">valinnainen</span>
+            </label>
+            <input
+              type="number"
+              id="kkkulut"
+              min="0"
+              step="0.01"
+              placeholder="esim. 5"
+            />
+            <span class="kentta-vihje" id="kkkulut-vihje">
+              Osa kuukausierästä, esim. tilinhoitomaksu.
+            </span>
           </div>
           <div class="lomake-napit">
             <button type="submit" class="nappi ensisijainen" id="tallenna-nappi">
@@ -108,7 +123,7 @@
           </div>
           <div class="mittari">
             <span class="mittari-arvo" id="yht-korot">–</span>
-            <span class="mittari-nimi">Korot yhteensä</span>
+            <span class="mittari-nimi" id="yht-korot-nimi">Korot yhteensä</span>
           </div>
         </div>
       </section>
