@@ -333,6 +333,101 @@ body {
   margin-left: auto;
 }
 
+/* Maksujen kohdennus */
+.kohdennus {
+  margin-top: 1.5rem;
+  background: var(--tausta);
+  border: 1px solid var(--kortti-reuna);
+  border-radius: 11px;
+  padding: 1.2rem 1.3rem;
+}
+
+.kohdennus h3 {
+  font-size: 1.05rem;
+  margin-bottom: 0.3rem;
+}
+
+.kohdennus .selite {
+  font-size: 0.85rem;
+  color: var(--teksti-himmea);
+  margin-bottom: 1rem;
+}
+
+.era-rivi {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 0.5rem 1rem;
+  align-items: center;
+  padding: 0.55rem 0.7rem;
+  border-radius: 8px;
+  font-size: 0.92rem;
+}
+
+.era-rivi + .era-rivi {
+  margin-top: 0.35rem;
+}
+
+.era-rivi.kohde {
+  background: rgba(52, 211, 153, 0.12);
+  border: 1px solid var(--vihrea);
+}
+
+.era-rivi .era-nimi {
+  font-weight: 600;
+}
+
+.era-rivi .kohde-merkki {
+  font-size: 0.68rem;
+  background: var(--vihrea);
+  color: #052e16;
+  padding: 0.08rem 0.45rem;
+  border-radius: 999px;
+  font-weight: 700;
+  margin-left: 0.4rem;
+}
+
+.era-rivi .era-vanha {
+  color: var(--teksti-himmea);
+  text-decoration: line-through;
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.era-rivi .era-uusi {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.era-rivi.kohde .era-uusi {
+  color: var(--vihrea);
+}
+
+.era-rivi .era-nuoli {
+  color: var(--teksti-himmea);
+  margin: 0 0.2rem;
+}
+
+.era-yhteensa {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.9rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--kortti-reuna);
+  font-weight: 700;
+}
+
+.era-yhteensa .arvo {
+  font-variant-numeric: tabular-nums;
+  color: var(--korostus);
+}
+
+.kohdennus .seuraavaksi {
+  margin-top: 0.9rem;
+  font-size: 0.85rem;
+  color: var(--teksti-himmea);
+}
+
 .suositus {
   margin-top: 1.5rem;
   background: rgba(52, 211, 153, 0.1);

@@ -256,6 +256,7 @@
           ⚠️ Nykyiset kuukausimaksut eivät riitä lyhentämään velkaa. Nosta
           lyhennyksiä tai lisää ylimääräistä budjettia.
         </div>`;
+      document.getElementById("kohdennus").classList.add("piilossa");
       suositusEl.classList.add("piilossa");
       return;
     }
@@ -283,6 +284,9 @@
       )
     );
 
+    // Näytä konkreettinen maksujen kohdennus parhaan strategian mukaan.
+    piirraKohdennus(parasStrategia, lisabudjetti);
+
     // Vertailu nykytahtiin (ilman lisäbudjettia, minimimaksut).
     const nyky = simuloiStrategia(lainat, 0, "lumivyory");
     naytaSuositus(
@@ -292,6 +296,83 @@
       nyky,
       lisabudjetti
     );
+  }
+
+  function piirraKohdennus(strategia, lisabudjetti) {
+    const el = document.getElementById("kohdennus");
+    const avoimet = lainat.filter((l) => l.saldo > 0.005);
+    if (avoimet.length === 0) {
+      el.classList.add("piilossa");
+      return;
+    }
+
+    // Kohdelaina strategian mukaan: korkein korko (lumivyöry) tai pienin saldo (lumipallo).
+    const jarjestetty = [...avoimet].sort((a, b) =>
+      strategia === "lumipallo" ? a.saldo - b.saldo : b.korko - a.korko
+    );
+    const kohde = jarjestetty[0];
+
+    const strategiaNimi =
+      strategia === "lumivyory" ? "velkalumivyöry" : "velkalumipallo";
+
+    const otsikko =
+      lisabudjetti > 0
+        ? "Näin maksat ensi kuussa"
+        : "Kuukausierät nyt";
+
+    const selite =
+      lisabudjetti > 0
+        ? `Kaikkiin lainoihin maksat vähintään minimin. Ylimääräiset <strong>${euro(
+            lisabudjetti
+          )}</strong> ohjataan kokonaan lainaan, joka kannattaa maksaa ensin (${strategiaNimi}).`
+        : `Maksat jokaiseen lainaan sen oman kuukausierän. Lisää ylimääräistä budjettia yltä, niin näet mihin lainaan se kannattaa ohjata.`;
+
+    let riviHtml = "";
+    let yhteensa = 0;
+    for (const l of lainat) {
+      if (l.saldo <= 0.005) continue;
+      const onKohde = l.id === kohde.id;
+      const uusiEra = onKohde ? l.kkMaksu + lisabudjetti : l.kkMaksu;
+      yhteensa += uusiEra;
+
+      const muuttui = onKohde && lisabudjetti > 0;
+      const arvoHtml = muuttui
+        ? `<span class="era-vanha">${euro(l.kkMaksu)}</span>
+           <span class="era-nuoli">→</span>
+           <span class="era-uusi">${euro(uusiEra)}</span>`
+        : `<span class="era-uusi">${euro(uusiEra)}</span>`;
+
+      riviHtml += `
+        <div class="era-rivi ${onKohde ? "kohde" : ""}">
+          <span class="era-nimi">${escapeHtml(l.nimi)}${
+        onKohde
+          ? '<span class="kohde-merkki">MAKSA ENSIN</span>'
+          : ""
+      }</span>
+          <span>${arvoHtml}</span>
+        </div>`;
+    }
+
+    const seuraavat = jarjestetty.slice(1).map((l) => escapeHtml(l.nimi));
+    const seuraavaksiHtml =
+      lisabudjetti > 0 && seuraavat.length > 0
+        ? `<p class="seuraavaksi">💡 Kun <strong>${escapeHtml(
+            kohde.nimi
+          )}</strong> on maksettu, sen erä ja lisäbudjetti siirtyvät automaattisesti seuraavaan: ${seuraavat.join(
+            " → "
+          )}.</p>`
+        : "";
+
+    el.innerHTML = `
+      <h3>${otsikko}</h3>
+      <p class="selite">${selite}</p>
+      ${riviHtml}
+      <div class="era-yhteensa">
+        <span>Yhteensä / kk</span>
+        <span class="arvo">${euro(yhteensa)}</span>
+      </div>
+      ${seuraavaksiHtml}`;
+    el.classList.remove("piilossa");
   }
 
   function luoStrategiaKortti(otsikko, selite, tulos, onParas) {
