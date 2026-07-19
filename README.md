@@ -12,6 +12,9 @@ ja tekee suunnitelman velkojen nopeaan takaisinmaksuun.
   menee ja paljonko korkoja kertyy.
 - **Yhteenveto** — kokonaisvelka, kuukausimaksut, arvioitu velaton-hetki ja
   korot yhteensä.
+- **Kuukausibudjetti** — syötä nettotulot ja pakolliset menot, niin näet
+  paljonko jää lainojen ylimääräisiin lyhennyksiin. Liikenevän summan voi
+  napata suoraan takaisinmaksusuunnitelmaan.
 - **Takaisinmaksusuunnitelma** — vertailee kahta strategiaa, kun kohdennat
   ylimääräistä budjettia lyhennyksiin:
   - 🏔️ **Velkalumivyöry** — maksa korkein korko ensin (säästää eniten korkoja).

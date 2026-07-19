@@ -458,6 +458,144 @@ body {
   color: var(--vihrea);
 }
 
+/* Kuukausibudjetti */
+.budjetti-alaotsikko {
+  font-size: 1rem;
+  margin: 0.5rem 0 0.8rem;
+}
+
+.meno-lomake {
+  display: grid;
+  grid-template-columns: 1fr 140px auto;
+  gap: 0.7rem;
+  margin-bottom: 1rem;
+}
+
+.meno-lomake input {
+  background: var(--tausta);
+  border: 1px solid var(--kortti-reuna);
+  border-radius: 9px;
+  padding: 0.6rem 0.75rem;
+  color: var(--teksti);
+  font-size: 0.95rem;
+}
+
+.meno-lomake input:focus {
+  outline: none;
+  border-color: var(--korostus);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+}
+
+.meno-rivi {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  background: var(--tausta);
+  border: 1px solid var(--kortti-reuna);
+  border-radius: 9px;
+  padding: 0.55rem 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.meno-rivi .meno-nimi {
+  font-weight: 600;
+}
+
+.meno-rivi .meno-oikea {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.meno-rivi .meno-summa {
+  font-variant-numeric: tabular-nums;
+  color: var(--teksti);
+}
+
+.meno-poista {
+  background: none;
+  border: none;
+  color: var(--teksti-himmea);
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 0.1rem 0.3rem;
+  border-radius: 6px;
+}
+
+.meno-poista:hover {
+  color: var(--punainen);
+  background: rgba(248, 113, 113, 0.1);
+}
+
+.budjetti-yhteenveto {
+  margin-top: 1.3rem;
+  background: var(--tausta);
+  border: 1px solid var(--kortti-reuna);
+  border-radius: 11px;
+  padding: 1.1rem 1.3rem;
+}
+
+.budjetti-rivi {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.45rem 0;
+  font-size: 0.95rem;
+  border-bottom: 1px dashed var(--kortti-reuna);
+}
+
+.budjetti-rivi .arvo {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.budjetti-rivi.tulo .arvo {
+  color: var(--vihrea);
+}
+
+.budjetti-rivi.meno .arvo {
+  color: var(--punainen);
+}
+
+.budjetti-rivi.summa {
+  border-bottom: none;
+  border-top: 2px solid var(--kortti-reuna);
+  margin-top: 0.4rem;
+  padding-top: 0.7rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.budjetti-rivi.summa .arvo {
+  font-size: 1.15rem;
+}
+
+.budjetti-rivi.summa.positiivinen .arvo {
+  color: var(--vihrea);
+}
+
+.budjetti-rivi.summa.negatiivinen .arvo {
+  color: var(--punainen);
+}
+
+.budjetti-toiminto {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  align-items: center;
+}
+
+.budjetti-varoitus {
+  margin-top: 1rem;
+  color: var(--keltainen);
+  background: rgba(251, 191, 36, 0.1);
+  border-radius: 9px;
+  padding: 0.7rem 0.9rem;
+  font-size: 0.9rem;
+}
+
 /* Asetuspalkki */
 .asetukset-palkki {
   display: flex;

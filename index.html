@@ -137,6 +137,33 @@
         </p>
       </section>
 
+      <!-- Kuukausibudjetti -->
+      <section class="kortti" id="budjetti-kortti">
+        <h2>💰 Kuukausibudjetti</h2>
+        <p class="ohje">
+          Syötä nettotulosi ja pakolliset menot, niin näet paljonko jää
+          lainojen ylimääräisiin lyhennyksiin joka kuukausi.
+        </p>
+
+        <div class="kentta tyokalu-kentta">
+          <label for="tulot">Nettotulot / kk (€)</label>
+          <input type="number" id="tulot" min="0" step="10" placeholder="esim. 2500" />
+        </div>
+
+        <h3 class="budjetti-alaotsikko">Pakolliset menot</h3>
+        <form id="meno-lomake" class="meno-lomake" novalidate>
+          <input type="text" id="meno-nimi" placeholder="esim. Vuokra" />
+          <input type="number" id="meno-summa" min="0" step="1" placeholder="€/kk" />
+          <button type="submit" class="nappi ensisijainen pieni">Lisää meno</button>
+        </form>
+        <div id="menolista"></div>
+        <p class="tyhja-teksti" id="meno-tyhja">
+          Ei vielä menoja. Lisää esim. vuokra, ruoka, sähkö, vakuutukset…
+        </p>
+
+        <div class="budjetti-yhteenveto" id="budjetti-yhteenveto"></div>
+      </section>
+
       <!-- Takaisinmaksusuunnitelma -->
       <section class="kortti suunnitelma piilossa" id="suunnitelma-kortti">
         <h2>Takaisinmaksusuunnitelma</h2>

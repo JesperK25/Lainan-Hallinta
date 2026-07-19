@@ -9,8 +9,10 @@
   const TALLENNUSAVAIN = "lainanhallinta.lainat.v1";
   const BUDJETTIAVAIN = "lainanhallinta.lisabudjetti.v1";
   const KORKOAVAIN = "lainanhallinta.korkotyyppi.v1";
+  const KKBUDJETTIAVAIN = "lainanhallinta.kkbudjetti.v1";
 
   let lainat = lataaLainat();
+  let budjetti = lataaKkBudjetti();
   let parasStrategiaNyt = "lumivyory";
 
   // --- DOM-viitteet ---
@@ -53,6 +55,22 @@
 
   function tallennaKorkotyyppi(arvo) {
     localStorage.setItem(KORKOAVAIN, arvo);
+  }
+
+  function lataaKkBudjetti() {
+    try {
+      const data = localStorage.getItem(KKBUDJETTIAVAIN);
+      const b = data ? JSON.parse(data) : null;
+      return b && typeof b === "object"
+        ? { tulot: b.tulot || 0, menot: Array.isArray(b.menot) ? b.menot : [] }
+        : { tulot: 0, menot: [] };
+    } catch (e) {
+      return { tulot: 0, menot: [] };
+    }
+  }
+
+  function tallennaKkBudjetti() {
+    localStorage.setItem(KKBUDJETTIAVAIN, JSON.stringify(budjetti));
   }
 
   // --- Lomakkeen käsittely ---
@@ -192,6 +210,7 @@
     paivitaKuluKentta();
     piirraLainalista();
     piirraYhteenveto();
+    piirraBudjetti();
     piirraSuunnitelma();
     piirraYhdistely();
     piirraTavoite();
@@ -308,6 +327,107 @@
     document.getElementById("yht-korot-nimi").textContent = onkoKuluja()
       ? "Korot & kulut yht."
       : "Korot yhteensä";
+  }
+
+  // --- Kuukausibudjetti ---
+  function piirraBudjetti() {
+    // Menolista.
+    const menolista = document.getElementById("menolista");
+    const menoTyhja = document.getElementById("meno-tyhja");
+    menolista.innerHTML = "";
+    if (budjetti.menot.length === 0) {
+      menoTyhja.classList.remove("piilossa");
+    } else {
+      menoTyhja.classList.add("piilossa");
+      for (const meno of budjetti.menot) {
+        const rivi = document.createElement("div");
+        rivi.className = "meno-rivi";
+        rivi.innerHTML = `
+          <span class="meno-nimi">${escapeHtml(meno.nimi)}</span>
+          <span class="meno-oikea">
+            <span class="meno-summa">${euro(meno.summa)}/kk</span>
+            <button class="meno-poista" data-meno="${meno.id}" title="Poista">✕</button>
+          </span>`;
+        menolista.appendChild(rivi);
+      }
+      menolista.querySelectorAll("[data-meno]").forEach((b) =>
+        b.addEventListener("click", () => poistaMeno(b.dataset.meno))
+      );
+    }
+
+    // Yhteenveto.
+    const tulot = budjetti.tulot || 0;
+    const menotYht = budjetti.menot.reduce((s, m) => s + m.summa, 0);
+    const lainatYht = lainat.reduce((s, l) => s + l.kkMaksu, 0);
+    const jaa = tulot - menotYht - lainatYht;
+
+    const el = document.getElementById("budjetti-yhteenveto");
+    let html = `
+      <div class="budjetti-rivi tulo">
+        <span>Nettotulot</span><span class="arvo">+ ${euro(tulot)}</span>
+      </div>
+      <div class="budjetti-rivi meno">
+        <span>Pakolliset menot</span><span class="arvo">− ${euro(menotYht)}</span>
+      </div>
+      <div class="budjetti-rivi meno">
+        <span>Lainojen kuukausierät</span><span class="arvo">− ${euro(lainatYht)}</span>
+      </div>
+      <div class="budjetti-rivi summa ${jaa >= 0 ? "positiivinen" : "negatiivinen"}">
+        <span>Jää lyhennyksiin</span><span class="arvo">${euro(jaa)}/kk</span>
+      </div>`;
+
+    if (tulot <= 0) {
+      html += `<p class="tulos-huomio">Syötä nettotulosi yltä nähdäksesi paljonko jää käytettäväksi.</p>`;
+    } else if (jaa > 0.005) {
+      html += `
+        <div class="budjetti-toiminto">
+          <button type="button" class="nappi ensisijainen pieni" id="kayta-budjetti">
+            Käytä ${euro(jaa)}/kk ylimääräisenä lyhennyksenä
+          </button>
+          <span class="kentta-vihje">Asettaa summan takaisinmaksusuunnitelmaan.</span>
+        </div>`;
+    } else if (jaa < -0.005) {
+      html += `
+        <div class="budjetti-varoitus">
+          ⚠️ Menosi ja lainojen erät ylittävät tulot <strong>${euro(
+            Math.abs(jaa)
+          )}/kk</strong>. Nykyisiä maksuja ei pysty kattamaan — kannattaa kääntyä
+          talous- ja velkaneuvonnan puoleen mahdollisimman pian.
+        </div>`;
+    } else {
+      html += `<p class="tulos-huomio">Tulot riittävät juuri pakollisiin menoihin ja lainojen eriin — ylimääräistä lyhennysvaraa ei jää.</p>`;
+    }
+
+    el.innerHTML = html;
+
+    const nappi = document.getElementById("kayta-budjetti");
+    if (nappi) {
+      nappi.addEventListener("click", function () {
+        const summa = Math.floor(jaa);
+        lisabudjettiKentta.value = summa;
+        tallennaBudjetti(summa);
+        piirraSuunnitelma();
+        document
+          .getElementById("suunnitelma-kortti")
+          .scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
+  }
+
+  function lisaaMeno(nimi, summa) {
+    budjetti.menot.push({
+      id: String(Date.now()) + Math.random().toString(36).slice(2, 7),
+      nimi,
+      summa,
+    });
+    tallennaKkBudjetti();
+    piirraBudjetti();
+  }
+
+  function poistaMeno(id) {
+    budjetti.menot = budjetti.menot.filter((m) => m.id !== id);
+    tallennaKkBudjetti();
+    piirraBudjetti();
   }
 
   function piirraSuunnitelma() {
@@ -845,10 +965,32 @@
     piirraKaikki();
   });
 
+  // Kuukausibudjetti: tulot ja menot.
+  const tulotKentta = document.getElementById("tulot");
+  tulotKentta.addEventListener("input", function () {
+    budjetti.tulot = Math.max(0, parseFloat(tulotKentta.value) || 0);
+    tallennaKkBudjetti();
+    piirraBudjetti();
+  });
+
+  document.getElementById("meno-lomake").addEventListener("submit", function (e) {
+    e.preventDefault();
+    const nimiKentta = document.getElementById("meno-nimi");
+    const summaKentta = document.getElementById("meno-summa");
+    const nimi = nimiKentta.value.trim();
+    const summa = parseFloat(summaKentta.value);
+    if (!nimi || !(summa > 0)) return;
+    lisaaMeno(nimi, summa);
+    nimiKentta.value = "";
+    summaKentta.value = "";
+    nimiKentta.focus();
+  });
+
   // --- Alustus ---
   const alkuKorkotyyppi = lataaKorkotyyppi();
   korkotyyppiValinta.value = alkuKorkotyyppi;
   asetaKorkotyyppi(alkuKorkotyyppi);
   lisabudjettiKentta.value = lataaBudjetti();
+  tulotKentta.value = budjetti.tulot || "";
   piirraKaikki();
 })();
