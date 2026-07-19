@@ -441,6 +441,46 @@ body {
   color: var(--vihrea);
 }
 
+/* Asetuspalkki */
+.asetukset-palkki {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 0.9rem;
+  background: var(--kortti);
+  border: 1px solid var(--kortti-reuna);
+  border-radius: var(--pyoristys);
+  padding: 0.9rem 1.2rem;
+  box-shadow: var(--varjo);
+}
+
+.asetukset-palkki label {
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.asetukset-palkki select {
+  background: var(--tausta);
+  border: 1px solid var(--kortti-reuna);
+  border-radius: 9px;
+  padding: 0.5rem 0.7rem;
+  color: var(--teksti);
+  font-size: 0.92rem;
+  cursor: pointer;
+}
+
+.asetukset-palkki select:focus {
+  outline: none;
+  border-color: var(--korostus);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+}
+
+.asetukset-vihje {
+  font-size: 0.82rem;
+  color: var(--teksti-himmea);
+  flex: 1 1 220px;
+}
+
 /* Työkalut: yhdistely, tavoite, kaavio */
 .tyokalu-syotteet {
   display: grid;

@@ -18,6 +18,19 @@
     </header>
 
     <main class="sisalto">
+      <!-- Asetukset: koron tulkinta -->
+      <div class="asetukset-palkki">
+        <label for="korkotyyppi">Syöttämäni korot ovat:</label>
+        <select id="korkotyyppi">
+          <option value="todellinen">Todellinen vuosikorko (TVK)</option>
+          <option value="nimellinen">Nimelliskorko</option>
+        </select>
+        <span class="asetukset-vihje">
+          Vaikuttaa kaikkiin laskelmiin. TVK sisältää kulut ja on tarkempi arvio
+          todellisesta hinnasta.
+        </span>
+      </div>
+
       <!-- Lainan lisäys / muokkaus -->
       <section class="kortti">
         <h2 id="lomake-otsikko">Lisää laina</h2>

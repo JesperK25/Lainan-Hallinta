@@ -8,6 +8,7 @@
 
   const TALLENNUSAVAIN = "lainanhallinta.lainat.v1";
   const BUDJETTIAVAIN = "lainanhallinta.lisabudjetti.v1";
+  const KORKOAVAIN = "lainanhallinta.korkotyyppi.v1";
 
   let lainat = lataaLainat();
   let parasStrategiaNyt = "lumivyory";
@@ -44,6 +45,14 @@
 
   function tallennaBudjetti(arvo) {
     localStorage.setItem(BUDJETTIAVAIN, String(arvo));
+  }
+
+  function lataaKorkotyyppi() {
+    return localStorage.getItem(KORKOAVAIN) || "todellinen";
+  }
+
+  function tallennaKorkotyyppi(arvo) {
+    localStorage.setItem(KORKOAVAIN, arvo);
   }
 
   // --- Lomakkeen käsittely ---
@@ -761,7 +770,18 @@
     return div.innerHTML;
   }
 
+  // Koron tyypin valinta.
+  const korkotyyppiValinta = document.getElementById("korkotyyppi");
+  korkotyyppiValinta.addEventListener("change", function () {
+    tallennaKorkotyyppi(korkotyyppiValinta.value);
+    asetaKorkotyyppi(korkotyyppiValinta.value);
+    piirraKaikki();
+  });
+
   // --- Alustus ---
+  const alkuKorkotyyppi = lataaKorkotyyppi();
+  korkotyyppiValinta.value = alkuKorkotyyppi;
+  asetaKorkotyyppi(alkuKorkotyyppi);
   lisabudjettiKentta.value = lataaBudjetti();
   piirraKaikki();
 })();

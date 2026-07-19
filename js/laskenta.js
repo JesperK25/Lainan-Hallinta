@@ -5,11 +5,30 @@
  * Lyhennykset ovat kuukausimaksuja (annuiteetti-tyyppinen: korko + lyhennys).
  */
 
+// Miten syötetty vuosikorko tulkitaan:
+//  "todellinen" = todellinen vuosikorko (TVK, efektiivinen) — oletus
+//  "nimellinen" = nimelliskorko (jaetaan tasan 12 kk:lle)
+let korkotila = "todellinen";
+
+/**
+ * Asettaa käytettävän korkotyypin ("todellinen" | "nimellinen").
+ */
+function asetaKorkotyyppi(tyyppi) {
+  korkotila = tyyppi === "nimellinen" ? "nimellinen" : "todellinen";
+}
+
 /**
  * Kuukausikorko desimaalilukuna vuosikorosta (%).
+ *
+ * Todellinen vuosikorko on efektiivinen: kun kuukausikorko kerrotaan
+ * korkoa korolle 12 kertaa, tulokseksi tulee juuri syötetty vuosikorko.
+ * Nimelliskorko jaetaan yksinkertaisesti 12:lla.
  */
 function kuukausikorko(vuosikorkoProsentti) {
-  return vuosikorkoProsentti / 100 / 12;
+  if (korkotila === "nimellinen") {
+    return vuosikorkoProsentti / 100 / 12;
+  }
+  return Math.pow(1 + vuosikorkoProsentti / 100, 1 / 12) - 1;
 }
 
 /**
@@ -312,6 +331,7 @@ function laskeTavoiteBudjetti(lainat, tavoiteKuukaudet, maxKuukaudet = 1200) {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = {
     kuukausikorko,
+    asetaKorkotyyppi,
     laskeLaina,
     muotoileKesto,
     euro,
