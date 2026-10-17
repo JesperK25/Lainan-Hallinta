@@ -41,7 +41,21 @@ index.html          Käyttöliittymän runko
 css/tyyli.css       Ulkoasu
 js/laskenta.js      Lainalaskennan funktiot (myös Node-yhteensopiva testejä varten)
 js/sovellus.js      Käyttöliittymän logiikka + tallennus
+tests/              Laskentafunktioiden testit (node:test)
 ```
+
+## Testit
+
+```
+npm test
+```
+
+Testit vaativat Node.js 22:n tai uudemman, eivätkä tarvitse asennettavia riippuvuuksia.
+Ne vertaavat laskennan tuloksia annuiteettikaavalla laskettuihin arvoihin ja
+tarkistavat mm. todellisen vuosikoron ja nimelliskoron muunnokset, viimeisen
+erän, kuukausikulut, riittämättömän erän tunnistuksen, velkalumivyöry- ja
+lumipallostrategioiden järjestyksen ja korkovertailun sekä tavoitebudjetin
+puolitushaun.
 
 ## Laskennasta
 

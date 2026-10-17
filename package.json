@@ -1,0 +1,8 @@
+{
+  "name": "lainan-hallinta",
+  "private": true,
+  "description": "Selainpohjainen lainanhallinta- ja takaisinmaksusuunnittelusovellus",
+  "scripts": {
+    "test": "node --test"
+  }
+}
